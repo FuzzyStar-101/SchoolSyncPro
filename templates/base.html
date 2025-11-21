@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolSync Pro - {% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 70px;
+            background: #1e293b;
+            transition: width 0.3s ease;
+            overflow-x: hidden;
+            z-index: 1000;
+        }
+
+        .sidebar:hover {
+            width: 250px;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header i {
+            font-size: 28px;
+            color: #3b82f6;
+            min-width: 30px;
+        }
+
+        .sidebar-header span {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-header span {
+            opacity: 1;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .menu-item i {
+            font-size: 20px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .menu-item span {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .menu-item span {
+            opacity: 1;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .menu-item.logout {
+            color: #ef4444;
+            margin-top: 20px;
+        }
+
+        .menu-item.logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 70px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-text h2 {
+            font-size: 24px;
+            color: #1e293b;
+        }
+
+        .welcome-text p {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .password-reminder {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 15px 40px;
+            text-align: center;
+            display: none;
+            position: relative;
+        }
+
+        .password-reminder.show {
+            display: block;
+        }
+
+        .password-reminder button {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #92400e;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .content-area {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: #f8fafc;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h3 {
+            font-size: 22px;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+            }
+
+            .sidebar:hover {
+                width: 250px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .form-grid,
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-text h2 {
+                font-size: 20px;
+            }
+        }
+
+        /* Additional Utilities */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: #64748b;
+        }
+
+        .mt-10 {
+            margin-top: 10px;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gap-10 {
+            gap: 10px;
+        }
+
+        .gap-20 {
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-graduation-cap"></i>
+            <span>SchoolSync</span>
+        </div>
+
+        <div class="sidebar-menu">
+            <!-- Student Menu Items -->
+            {% if user.role == 'student' %}
+            <a href="/dashboard/account" class="menu-item" data-page="account">
+                <i class="fas fa-user"></i>
+                <span>Account</span>
+            </a>
+            <a href="/dashboard/schedule" class="menu-item" data-page="schedule">
+                <i class="fas fa-calendar-day"></i>
+                <span>Schedule</span>
+            </a>
+            <a href="/dashboard/calendar" class="menu-item" data-page="calendar">
+                <i class="fas fa-calendar-week"></i>
+                <span>Calendar</span>
+            </a>
+            <a href="/dashboard/homework" class="menu-item" data-page="homework">
+                <i class="fas fa-book"></i>
+                <span>Homework</span>
+            </a>
+            <a href="/dashboard/grades" class="menu-item" data-page="grades">
+                <i class="fas fa-chart-line"></i>
+                <span>Grades</span>
+            </a>
+            <a href="/dashboard/tasks" class="menu-item" data-page="tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="/dashboard/chat" class="menu-item" data-page="chat">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            {% endif %}
+
+            <!-- Teacher Menu Items -->
+            {% if user.role == 'teacher' %}
+            <a href="/dashboard/account" class="menu-item" data-page="account">
+                <i class="fas fa-user"></i>
+                <span>Account</span>
+            </a>
+            <a href="/dashboard/schedule" class="menu-item" data-page="schedule">
+                <i class="fas fa-calendar-day"></i>
+                <span>Schedule</span>
+            </a>
+            <a href="/dashboard/homework" class="menu-item" data-page="homework">
+                <i class="fas fa-book"></i>
+                <span>Homework</span>
+            </a>
+            <a href="/dashboard/grades" class="menu-item" data-page="grades">
+                <i class="fas fa-chart-line"></i>
+                <span>Grades</span>
+            </a>
+            <a href="/dashboard/tasks" class="menu-item" data-page="tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="/dashboard/chat" class="menu-item" data-page="chat">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            {% endif %}
+
+            <!-- Admin Menu Items -->
+            {% if user.role in ['admin', 'superadmin'] %}
+            <a href="/dashboard/account" class="menu-item" data-page="account">
+                <i class="fas fa-user"></i>
+                <span>Account</span>
+            </a>
+            <a href="/dashboard/accounts" class="menu-item" data-page="accounts">
+                <i class="fas fa-users"></i>
+                <span>Accounts</span>
+            </a>
+            <a href="/dashboard/import" class="menu-item" data-page="import">
+                <i class="fas fa-file-upload"></i>
+                <span>Import Data</span>
+            </a>
+            <a href="/dashboard/timetable" class="menu-item" data-page="timetable">
+                <i class="fas fa-table"></i>
+                <span>Timetable Editor</span>
+            </a>
+            <a href="/dashboard/homework" class="menu-item" data-page="homework">
+                <i class="fas fa-book"></i>
+                <span>Homework</span>
+            </a>
+            <a href="/dashboard/grades" class="menu-item" data-page="grades">
+                <i class="fas fa-chart-line"></i>
+                <span>Grades</span>
+            </a>
+            <a href="/dashboard/tasks" class="menu-item" data-page="tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="/dashboard/chat" class="menu-item" data-page="chat">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            {% endif %}
+
+            <!-- Super Admin Only -->
+            {% if user.role == 'superadmin' %}
+            <a href="/dashboard/monitor-chats" class="menu-item" data-page="monitor-chats">
+                <i class="fas fa-eye"></i>
+                <span>Monitor Chats</span>
+            </a>
+            {% endif %}
+
+            <!-- Logout -->
+            <a href="/logout" class="menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="welcome-text">
+                <h2>Welcome, {{ user.name }}!</h2>
+                <p>{{ user.role|title }} Dashboard</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ user.name[0]|upper }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Reminder Banner -->
+        <div id="passwordReminder" class="password-reminder {% if user.first_login == 1 %}show{% endif %}">
+            <i class="fas fa-exclamation-triangle"></i>
+            We recommend changing your password for security.
+            <button onclick="dismissPasswordReminder()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Modals Container -->
+    {% block modals %}{% endblock %}
+
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <script>
+        // Initialize Socket.IO
+        const socket = io();
+
+        // Active page highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.menu-item').forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Dismiss password reminder
+        function dismissPasswordReminder() {
+            document.getElementById('passwordReminder').classList.remove('show');
+        }
+
+        // Global helper functions
+        function showError(message) {
+            alert(message);
+        }
+
+        function showSuccess(message) {
+            alert(message);
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

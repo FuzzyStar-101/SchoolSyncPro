@@ -1,0 +1,388 @@
+# 📚 SchoolSync Pro - Administrator Quick Start Guide
+
+## 🔐 First Login
+
+1. Open your SchoolSync Pro URL
+2. Click the **"ADMIN"** button in the top-right corner
+3. Login with default credentials:
+   - Username: `superadmin`
+   - Password: `superadmin123`
+4. **IMPORTANT:** Change your password immediately after first login!
+
+## 🔒 Changing Your Password
+
+1. Click **Account** in the sidebar
+2. Click **Change Password** button
+3. Enter current password
+4. Enter new password (minimum 8 characters)
+5. Confirm new password
+6. Click **Save Password**
+7. You'll be logged out - login again with new password
+
+## 👥 Creating User Accounts
+
+### Create Students
+
+1. Go to **Accounts** in sidebar
+2. Click **Add Account** button
+3. Fill in details:
+   - **Name:** Student's full name
+   - **Username:** Unique username (lowercase, no spaces)
+   - **Password:** At least 8 characters (they'll change it on first login)
+   - **Role:** Select "Student"
+   - **Class:** Enter their class (e.g., "10A", "Grade 9")
+4. Click **Create Account**
+5. Note the generated **User ID** (e.g., S001)
+
+### Create Teachers
+
+1. Go to **Accounts** → **Add Account**
+2. Fill in details:
+   - **Name:** Teacher's full name
+   - **Username:** Unique username
+   - **Password:** At least 8 characters
+   - **Role:** Select "Teacher"
+   - **Subjects:** Enter subjects they teach (comma-separated)
+     - Example: `Mathematics, Physics, Chemistry`
+3. Click **Create Account**
+4. Note the generated **User ID** (e.g., T001)
+
+### Create Additional Admins
+
+1. Go to **Accounts** → **Add Account**
+2. Fill in details:
+   - **Name:** Admin's full name
+   - **Username:** Unique username
+   - **Password:** At least 8 characters
+   - **Role:** Select "Admin"
+3. Click **Create Account**
+4. Note the generated **User ID** (e.g., A001)
+
+## 📊 Bulk Import Data
+
+### Prepare Your Files
+
+#### Students CSV Format:
+```csv
+name,class,username,password,email,phone
+John Doe,10A,johndoe,student123,john@school.com,1234567890
+Jane Smith,10B,janesmith,student123,jane@school.com,9876543210
+```
+
+#### Teachers CSV Format:
+```csv
+name,subjects,username,password
+Mr. Anderson,Mathematics,anderson,teacher123
+Ms. Johnson,Physics;Chemistry,johnson,teacher123
+```
+
+### Import Process
+
+1. Go to **Import Data** in sidebar
+2. Drag & drop your CSV/Excel file OR click to browse
+3. Select **Data Type** (or leave as "Auto-detect")
+4. Wait for processing
+5. Review feedback messages:
+   - ✅ Green = Success
+   - ❌ Red = Errors
+   - ℹ️ Blue = Information
+
+### Tips for Successful Imports
+
+- Column names are case-insensitive
+- Spaces and underscores in column names are treated the same
+- Required fields marked with * must have values
+- Default passwords: `student123` for students, `teacher123` for teachers
+- Usernames auto-generated from names if not provided
+
+## 📅 Creating Timetables
+
+### Step 1: Add Subjects
+
+1. Go to **Timetable Editor**
+2. In **Subjects** section (left):
+   - Type subject name
+   - Click ➕ button
+   - Repeat for all subjects
+
+Example subjects:
+- Mathematics
+- Physics
+- Chemistry
+- Biology
+- English
+- History
+- Computer Science
+
+### Step 2: Add Classes
+
+1. In **Classes** section (middle):
+   - Type class name (e.g., "10A", "Grade 9")
+   - Click ➕ button
+   - Repeat for all classes
+
+### Step 3: Assign Teachers to Subjects
+
+1. In **Assign Teachers** section (right):
+   - Select a teacher from dropdown
+   - Select a subject from dropdown
+   - Click **Assign** button
+2. Click **View All Assignments** to see current assignments
+3. Delete assignments using 🗑️ button if needed
+
+### Step 4: Create Schedule
+
+1. **Select a class** from the dropdown in middle section
+2. **Drag subjects** from the left section onto the timetable grid
+3. **Drop** on the day/period you want
+4. If there's a teacher conflict, you'll see:
+   - Warning message with teacher name
+   - Conflicting class information
+   - Alternative period suggestions
+   - Choose to proceed or cancel
+
+### Step 5: Save Schedule
+
+1. After placing all subjects, click **Save Schedule**
+2. Switch to different class and repeat
+3. Click **Clear Schedule** to start over if needed
+
+### Tips for Scheduling
+
+- Double-click a cell to clear it
+- The system automatically detects teacher conflicts
+- Create one complete schedule before moving to next class
+- Use suggested alternative periods to avoid conflicts
+
+## 📝 Managing Homework
+
+### Create Homework Assignment
+
+1. Go to **Homework** in sidebar
+2. Click **Add Homework** button
+3. Fill in details:
+   - **Subject:** e.g., Mathematics
+   - **Class:** e.g., 10A
+   - **Title:** e.g., "Chapter 5 Exercises"
+   - **Date Given:** Select today's date (default)
+   - **Due Date:** Select deadline
+   - **Description:** Add details (optional)
+4. Click **Save Homework**
+
+### View/Delete Homework
+
+- All homework displays in a table
+- Students see only their class homework
+- Teachers/Admins see all homework
+- Click 🗑️ to delete homework
+- Red dates indicate overdue assignments
+
+## 📊 Entering Grades
+
+1. Go to **Grades** in sidebar
+2. Currently, grades are entered via API or bulk import
+3. Grade types supported:
+   - **PT1, PT2, PT3:** Periodic Tests
+   - **PF:** Prefinal
+   - **F:** Final
+
+### Import Grades via CSV:
+
+```csv
+student_id,subject,test_type,score,max_score
+S001,Mathematics,PT1,85,100
+S001,Physics,PT1,78,100
+S002,Mathematics,PT1,92,100
+```
+
+## 🔧 User Management Tasks
+
+### Reset User Password
+
+1. Go to **Accounts**
+2. Find the user
+3. Click 🔑 (key icon)
+4. Enter new password (min 8 characters)
+5. Click OK
+6. User will be prompted to change password on next login
+
+### Delete User Account
+
+1. Go to **Accounts**
+2. Find the user
+3. Click 🗑️ (trash icon)
+4. Confirm deletion
+5. **WARNING:** This cannot be undone!
+
+### Filter Accounts
+
+Use the tab buttons to filter:
+- **Students:** View all students
+- **Teachers:** View all teachers
+- **Admins:** View all admins (Super Admin only)
+
+## 💬 Monitoring Chats (Super Admin Only)
+
+1. Go to **Monitor Chats** in sidebar
+2. View all chat rooms with:
+   - Room name
+   - Type (Direct/Group)
+   - Message count
+3. Click on any room to view messages
+4. **Note:** This is read-only - you cannot send messages
+
+## 🎯 Best Practices
+
+### Security
+
+✅ **DO:**
+- Change default passwords immediately
+- Use strong passwords (8+ characters, mix of letters/numbers)
+- Reset passwords if compromised
+- Review audit logs regularly
+- Keep admin credentials secure
+
+❌ **DON'T:**
+- Share admin credentials
+- Use simple passwords
+- Leave accounts with default passwords
+- Give admin access unnecessarily
+
+### Data Management
+
+✅ **DO:**
+- Backup databases regularly
+- Test imports with small sample first
+- Validate data before bulk import
+- Keep historical records
+- Document your procedures
+
+❌ **DON'T:**
+- Import without backup
+- Delete data without confirmation
+- Ignore error messages
+- Mix data types in imports
+
+### Timetable Management
+
+✅ **DO:**
+- Complete teacher assignments first
+- Resolve conflicts before finalizing
+- Save schedules frequently
+- Test with one class first
+- Keep backup of working schedules
+
+❌ **DON'T:**
+- Ignore conflict warnings
+- Assign subjects without teacher assignments
+- Create incomplete schedules
+- Overwrite without checking
+
+## 🆘 Common Issues & Solutions
+
+### "Username already exists"
+- Choose a different username
+- Check if user already created
+- Use username format: firstnamelastname (no spaces)
+
+### "Password must be at least 8 characters"
+- Use longer passwords
+- Include letters and numbers
+- Examples: Welcome123, School2024
+
+### "Failed to save schedule"
+- Make sure class is selected
+- Check if subjects are placed correctly
+- Refresh page and try again
+
+### "Teacher conflict detected"
+- Review conflict details
+- Use suggested alternative periods
+- Reassign teacher or adjust schedule
+
+### "Import failed"
+- Check file format (CSV, XLSX, JSON only)
+- Verify required columns present
+- Check for special characters
+- Try with smaller sample first
+
+### Cannot login
+- Verify username spelling
+- Check password (case-sensitive)
+- Click ADMIN toggle for admin accounts
+- Contact Super Admin for password reset
+
+## 📱 Accessing from Mobile
+
+1. Open browser on mobile device
+2. Navigate to your SchoolSync URL
+3. Login normally
+4. Sidebar auto-collapses on mobile
+5. Tap hamburger icon (☰) to open menu
+
+## 📞 Support
+
+### For Technical Issues:
+- Check this guide first
+- Review error messages
+- Contact IT administrator
+- Email: [Your Support Email]
+
+### For Account Issues:
+- Password reset via Super Admin
+- Username issues: Check with registrar
+- Access problems: Verify role assignment
+
+## 📋 Daily Admin Checklist
+
+- [ ] Check for new user requests
+- [ ] Review homework assignments
+- [ ] Monitor system errors
+- [ ] Verify schedule accuracy
+- [ ] Respond to support requests
+
+## 📋 Weekly Admin Checklist
+
+- [ ] Review audit logs
+- [ ] Backup databases
+- [ ] Update user accounts
+- [ ] Archive old data
+- [ ] Check system performance
+
+## 📋 Monthly Admin Checklist
+
+- [ ] Review all user accounts
+- [ ] Update schedules if needed
+- [ ] Import new student data
+- [ ] Generate reports
+- [ ] Plan system improvements
+
+## 🎓 Training Resources
+
+### For Students:
+- How to view schedule
+- How to check homework
+- How to use chat
+- How to manage tasks
+
+### For Teachers:
+- How to create homework
+- How to enter grades
+- How to use chat
+- How to view schedules
+
+### For Admins:
+- This guide!
+- User management
+- Data import procedures
+- Timetable creation
+
+---
+
+**Need Help?**  
+Contact: [Your School IT Department]  
+Email: [support@yourschool.com]  
+Phone: [Support Phone Number]
+
+**Version:** 1.0.0  
+**Last Updated:** November 2024

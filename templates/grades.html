@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Grades{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Grades</h1>
+
+<div class="card">
+    <div id="gradesTable">
+        <div class="spinner"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function loadGradesView() {
+        try {
+            const response = await fetch('/api/grades');
+            const grades = await response.json();
+
+            const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Computer Science'];
+            const testTypes = ['PT1', 'PT2', 'PT3', 'PF', 'F'];
+
+            let html = `
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>PT1</th>
+                                <th>PT2</th>
+                                <th>PT3</th>
+                                <th>PF</th>
+                                <th>Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            subjects.forEach(subject => {
+                html += `<tr><td style="font-weight: 600;">${subject}</td>`;
+                
+                testTypes.forEach(testType => {
+                    const score = grades[testType] && grades[testType][subject];
+                    const scoreText = score !== undefined ? score : '-';
+                    const scoreClass = score >= 90 ? 'color: #10b981; font-weight: 600;' : 
+                                      score >= 70 ? 'color: #3b82f6; font-weight: 600;' : 
+                                      score >= 50 ? 'color: #f59e0b; font-weight: 600;' : 
+                                      score ? 'color: #ef4444; font-weight: 600;' : '';
+                    
+                    html += `<td style="${scoreClass}">${scoreText}</td>`;
+                });
+                
+                html += `</tr>`;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Check if any grades exist
+            const hasGrades = Object.keys(grades).some(testType => 
+                grades[testType] && Object.keys(grades[testType]).length > 0
+            );
+
+            if (!hasGrades) {
+                html = `
+                    <div class="text-center" style="padding: 40px;">
+                        <i class="fas fa-chart-line" style="font-size: 64px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h3 style="color: #64748b;">No grades available</h3>
+                        <p style="color: #94a3b8; margin-top: 10px;">Grades will appear here once they are entered.</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('gradesTable').innerHTML = html;
+        } catch (error) {
+            document.getElementById('gradesTable').innerHTML = '<p style="color: #ef4444;">Failed to load grades</p>';
+        }
+    }
+
+    loadGradesView();
+</script>
+{% endblock %}

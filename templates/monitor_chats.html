@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Monitor All Chats{% endblock %}
+
+{% block content %}
+<div id="listView">
+    <h1 class="section-title">Monitor All Chats (Read-Only)</h1>
+
+    <div style="background: #fef3c7; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+        <i class="fas fa-exclamation-triangle" style="color: #92400e;"></i>
+        <strong style="color: #92400e;">Read-Only Mode:</strong>
+        <span style="color: #92400e;">You can view all conversations but cannot send messages.</span>
+    </div>
+
+    <div id="chatRoomsList" class="grid grid-3">
+        <div class="spinner"></div>
+    </div>
+</div>
+
+<div id="detailView" style="display: none;">
+    <button onclick="backToList()" class="btn btn-secondary mb-20">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </button>
+
+    <h1 class="section-title" id="detailChatName"></h1>
+
+    <div style="background: #fef3c7; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+        <i class="fas fa-eye" style="color: #92400e;"></i>
+        <strong style="color: #92400e;">Read-Only Mode:</strong>
+        <span style="color: #92400e;">Viewing conversation history only.</span>
+    </div>
+
+    <div class="card">
+        <div id="detailMessages" style="max-height: 600px; overflow-y: auto;">
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-room-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: all 0.3s;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .chat-room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .message-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #3b82f6;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .message-sender {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    .message-timestamp {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-bottom: 10px;
+    }
+
+    .message-text {
+        color: #475569;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function loadAllChatsView() {
+        try {
+            const response = await fetch('/api/superadmin/all-chats');
+            const rooms = await response.json();
+
+            if (rooms.length === 0) {
+                document.getElementById('chatRoomsList').innerHTML = `
+                    <div class="card text-center" style="grid-column: span 3; padding: 60px;">
+                        <i class="fas fa-comments" style="font-size: 64px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h3 style="color: #64748b;">No chat rooms yet</h3>
+                        <p style="color: #94a3b8; margin-top: 10px;">Chat rooms will appear here once users start conversations.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            rooms.forEach(room => {
+                html += `
+                    <div class="chat-room-card" onclick="viewChatAsAdmin('${room.room_id}', '${room.room_name}')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <h3 style="font-size: 18px; color: #1e293b;">${room.room_name}</h3>
+                            <i class="fas fa-arrow-right" style="color: #3b82f6; font-size: 20px;"></i>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <span class="badge badge-primary">${room.room_type}</span>
+                            <span class="badge badge-success">${room.message_count || 0} messages</span>
+                        </div>
+                        <p style="font-size: 13px; color: #64748b;">
+                            <i class="fas fa-clock"></i> Last activity: ${new Date(room.last_message).toLocaleString()}
+                        </p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('chatRoomsList').innerHTML = html;
+        } catch (error) {
+            document.getElementById('chatRoomsList').innerHTML = '<p style="color: #ef4444;">Failed to load chats</p>';
+        }
+    }
+
+    async function viewChatAsAdmin(roomId, roomName) {
+        try {
+            const response = await fetch(`/api/superadmin/chat-messages/${roomId}`);
+            const messages = await response.json();
+
+            document.getElementById('listView').style.display = 'none';
+            document.getElementById('detailView').style.display = 'block';
+            document.getElementById('detailChatName').textContent = roomName;
+
+            if (messages.length === 0) {
+                document.getElementById('detailMessages').innerHTML = `
+                    <div class="text-center" style="padding: 40px;">
+                        <i class="fas fa-comment-slash" style="font-size: 64px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h3 style="color: #64748b;">No messages yet</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            messages.forEach(msg => {
+                html += `
+                    <div class="message-card">
+                        <div class="message-sender">
+                            <i class="fas fa-user-circle"></i> ${msg.sender_name}
+                        </div>
+                        <div class="message-timestamp">
+                            <i class="fas fa-clock"></i> ${new Date(msg.timestamp).toLocaleString()}
+                        </div>
+                        <div class="message-text">
+                            ${msg.message}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('detailMessages').innerHTML = html;
+        } catch (error) {
+            alert('Failed to load messages');
+        }
+    }
+
+    function backToList() {
+        document.getElementById('listView').style.display = 'block';
+        document.getElementById('detailView').style.display = 'none';
+    }
+
+    loadAllChatsView();
+</script>
+{% endblock %}

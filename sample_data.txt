@@ -1,0 +1,353 @@
+# 📝 Sample Data for Testing SchoolSync Pro
+
+Use these sample files to quickly populate your system for testing.
+
+## 👨‍🎓 Sample Students CSV
+
+Create a file named `students_sample.csv`:
+
+```csv
+name,class,username,password,email,phone
+Arjun Kumar,10A,arjunk,student123,arjun@school.com,9876543210
+Priya Sharma,10A,priyas,student123,priya@school.com,9876543211
+Rahul Patel,10A,rahulp,student123,rahul@school.com,9876543212
+Sneha Reddy,10A,snehar,student123,sneha@school.com,9876543213
+Amit Singh,10B,amits,student123,amit@school.com,9876543214
+Kavya Iyer,10B,kavyai,student123,kavya@school.com,9876543215
+Rohan Gupta,10B,rohan g,student123,rohan@school.com,9876543216
+Anjali Das,10B,anjalid,student123,anjali@school.com,9876543217
+Vikram Joshi,9A,vikramj,student123,vikram@school.com,9876543218
+Riya Menon,9A,riyam,student123,riya@school.com,9876543219
+Karthik Rao,9A,karthikr,student123,karthik@school.com,9876543220
+Divya Nair,9A,divyan,student123,divya@school.com,9876543221
+Aditya Desai,9B,aditya d,student123,aditya@school.com,9876543222
+Pooja Pillai,9B,poojap,student123,pooja@school.com,9876543223
+Suresh Babu,9B,sureshb,student123,suresh@school.com,9876543224
+Meera Krishnan,9B,meera k,student123,meera@school.com,9876543225
+```
+
+## 👨‍🏫 Sample Teachers CSV
+
+Create a file named `teachers_sample.csv`:
+
+```csv
+name,subjects,username,password
+Mr. Rajesh Kumar,Mathematics,rajeshk,teacher123
+Ms. Lakshmi Iyer,Physics,lakshmii,teacher123
+Dr. Suresh Patel,Chemistry,sureshp,teacher123
+Mrs. Priya Sharma,Biology,priyas_t,teacher123
+Mr. Arun Reddy,English,arunr,teacher123
+Ms. Kavita Singh,History,kavitas,teacher123
+Mr. Vijay Gupta,Computer Science,vijayg,teacher123
+Mrs. Anjali Menon,Hindi,anjalim,teacher123
+```
+
+## 📅 Sample Schedule CSV
+
+Create a file named `schedule_10a.csv`:
+
+```csv
+class,day,period,subject
+10A,Monday,1,Mathematics
+10A,Monday,2,Physics
+10A,Monday,3,Chemistry
+10A,Monday,4,Biology
+10A,Monday,5,English
+10A,Monday,6,History
+10A,Monday,7,Computer Science
+10A,Monday,8,Hindi
+10A,Tuesday,1,Physics
+10A,Tuesday,2,Mathematics
+10A,Tuesday,3,Biology
+10A,Tuesday,4,Chemistry
+10A,Tuesday,5,History
+10A,Tuesday,6,English
+10A,Tuesday,7,Hindi
+10A,Tuesday,8,Computer Science
+10A,Wednesday,1,Chemistry
+10A,Wednesday,2,Biology
+10A,Wednesday,3,Mathematics
+10A,Wednesday,4,Physics
+10A,Wednesday,5,Computer Science
+10A,Wednesday,6,Hindi
+10A,Wednesday,7,English
+10A,Wednesday,8,History
+10A,Thursday,1,Biology
+10A,Thursday,2,Chemistry
+10A,Thursday,3,Physics
+10A,Thursday,4,Mathematics
+10A,Thursday,5,Hindi
+10A,Thursday,6,Computer Science
+10A,Thursday,7,History
+10A,Thursday,8,English
+10A,Friday,1,English
+10A,Friday,2,History
+10A,Friday,3,Hindi
+10A,Friday,4,Computer Science
+10A,Friday,5,Mathematics
+10A,Friday,6,Physics
+10A,Friday,7,Chemistry
+10A,Friday,8,Biology
+10A,Saturday,1,Computer Science
+10A,Saturday,2,English
+10A,Saturday,3,History
+10A,Saturday,4,Hindi
+```
+
+## 📚 Sample Homework CSV
+
+Create a file named `homework_sample.csv`:
+
+```csv
+subject,title,class,due_date,description,date_given
+Mathematics,Chapter 5 Exercises,10A,2024-12-15,Complete exercises 5.1 to 5.5,2024-12-01
+Physics,Newton's Laws Assignment,10A,2024-12-16,Solve problems from textbook page 85,2024-12-01
+Chemistry,Chemical Reactions Lab Report,10A,2024-12-18,Submit typed report with observations,2024-12-01
+Biology,Cell Structure Diagram,10A,2024-12-17,Draw and label plant and animal cells,2024-12-01
+English,Essay on Environmental Conservation,10A,2024-12-20,500 words minimum,2024-12-01
+History,Timeline of Indian Independence,10A,2024-12-19,Create detailed timeline with dates,2024-12-01
+Computer Science,Python Programming Project,10A,2024-12-22,Create a calculator program,2024-12-01
+Mathematics,Trigonometry Practice,9A,2024-12-15,Complete worksheet 1-20,2024-12-01
+Physics,Speed and Velocity Problems,9A,2024-12-16,Solve all problems from chapter 3,2024-12-01
+Chemistry,Periodic Table Quiz Preparation,9A,2024-12-17,Memorize first 30 elements,2024-12-01
+```
+
+## 📊 Sample Grades CSV
+
+Create a file named `grades_sample.csv`:
+
+```csv
+student_id,subject,test_type,score,max_score
+S001,Mathematics,PT1,85,100
+S001,Physics,PT1,78,100
+S001,Chemistry,PT1,82,100
+S001,Biology,PT1,90,100
+S001,English,PT1,88,100
+S002,Mathematics,PT1,92,100
+S002,Physics,PT1,85,100
+S002,Chemistry,PT1,88,100
+S002,Biology,PT1,95,100
+S002,English,PT1,90,100
+S003,Mathematics,PT1,75,100
+S003,Physics,PT1,72,100
+S003,Chemistry,PT1,78,100
+S003,Biology,PT1,80,100
+S003,English,PT1,85,100
+S001,Mathematics,PT2,88,100
+S001,Physics,PT2,80,100
+S001,Chemistry,PT2,85,100
+S002,Mathematics,PT2,95,100
+S002,Physics,PT2,88,100
+S002,Chemistry,PT2,90,100
+```
+
+## 🧪 Testing Workflow
+
+### Step 1: Import Students
+1. Go to **Import Data**
+2. Upload `students_sample.csv`
+3. Select data type: **Students**
+4. Verify all 16 students imported
+5. Check **Accounts** → **Students** tab
+
+### Step 2: Import Teachers
+1. Upload `teachers_sample.csv`
+2. Select data type: **Teachers**
+3. Verify all 8 teachers imported
+4. Check **Accounts** → **Teachers** tab
+
+### Step 3: Setup Timetable
+1. Go to **Timetable Editor**
+2. Add these subjects:
+   - Mathematics
+   - Physics
+   - Chemistry
+   - Biology
+   - English
+   - History
+   - Computer Science
+   - Hindi
+
+3. Add these classes:
+   - 10A
+   - 10B
+   - 9A
+   - 9B
+
+4. Assign teachers to subjects:
+   - Mr. Rajesh Kumar → Mathematics
+   - Ms. Lakshmi Iyer → Physics
+   - Dr. Suresh Patel → Chemistry
+   - Mrs. Priya Sharma → Biology
+   - Mr. Arun Reddy → English
+   - Ms. Kavita Singh → History
+   - Mr. Vijay Gupta → Computer Science
+   - Mrs. Anjali Menon → Hindi
+
+### Step 4: Import Schedule
+1. Upload `schedule_10a.csv`
+2. Select data type: **Schedule**
+3. Go to **Schedule** as a student (S001)
+4. Verify today's schedule displays
+
+### Step 5: Import Homework
+1. Upload `homework_sample.csv`
+2. Select data type: **Homework**
+3. Go to **Homework**
+4. Verify homework list appears
+
+### Step 6: Import Grades
+1. Upload `grades_sample.csv`
+2. Select data type: **Grades**
+3. Login as student S001 (arjunk)
+4. Go to **Grades**
+5. Verify grades display
+
+### Step 7: Test Chat
+1. Login as student S001 (arjunk)
+2. Go to **Chat**
+3. Create new chat with S002 (priyas)
+4. Send test message
+5. Login as S002 to verify message received
+
+### Step 8: Test Tasks
+1. Login as any user
+2. Go to **Tasks**
+3. Create "School Work" list
+4. Add tasks:
+   - Complete math homework
+   - Study for physics test
+   - Finish biology project
+5. Mark some complete
+6. Verify counter updates
+
+## 🔄 Reset Data
+
+To start fresh:
+
+1. Stop the application
+2. Delete database files:
+   ```bash
+   rm credentials.db schooldata.db
+   ```
+3. Restart application (databases will be recreated)
+4. Login with default superadmin credentials
+5. Re-import data
+
+## 📝 Quick Test Users
+
+After importing sample data:
+
+**Super Admin:**
+- Username: `superadmin`
+- Password: `superadmin123`
+
+**Sample Teacher:**
+- Username: `rajeshk`
+- Password: `teacher123`
+
+**Sample Student (10A):**
+- Username: `arjunk`
+- Password: `student123`
+
+**Sample Student (10B):**
+- Username: `amits`
+- Password: `student123`
+
+**Sample Student (9A):**
+- Username: `vikramj`
+- Password: `student123`
+
+## 🎯 Testing Scenarios
+
+### Scenario 1: Teacher Creates Homework
+1. Login as `rajeshk` (teacher)
+2. Go to **Homework** → **Add Homework**
+3. Create assignment for class 10A
+4. Logout
+5. Login as `arjunk` (student in 10A)
+6. Verify homework appears
+
+### Scenario 2: Admin Creates Schedule with Conflicts
+1. Login as `superadmin`
+2. Go to **Timetable Editor**
+3. Try to assign same teacher to two classes at same time
+4. Verify conflict warning appears
+5. Use alternative period suggestion
+
+### Scenario 3: Password Change Flow
+1. Login as any user with default password
+2. Go to **Account**
+3. Change password
+4. Verify forced logout
+5. Login with new password
+
+### Scenario 4: Real-time Chat
+1. Open two browser windows
+2. Login as different users in each
+3. Create chat between them
+4. Send messages
+5. Verify real-time updates
+
+### Scenario 5: Super Admin Monitoring
+1. Login as `superadmin`
+2. Create some chats with other users
+3. Go to **Monitor Chats**
+4. Verify all chats visible
+5. Click to view messages (read-only)
+
+## 🐛 Common Test Issues
+
+**Issue:** Students imported but can't login
+- **Solution:** Make sure they login WITHOUT clicking ADMIN toggle
+
+**Issue:** Grades not showing
+- **Solution:** Check student_id in CSV matches actual user_id (S001, S002, etc.)
+
+**Issue:** Schedule not loading
+- **Solution:** Verify class name in CSV exactly matches class in system
+
+**Issue:** Chat messages not real-time
+- **Solution:** Ensure Socket.IO is working, refresh both browser windows
+
+**Issue:** Homework not visible to students
+- **Solution:** Check class name matches student's class exactly
+
+## 💡 Tips for Production Data
+
+When preparing real school data:
+
+1. **Export from existing system**
+   - Most systems can export to CSV
+   - Match column names to SchoolSync format
+
+2. **Clean data before import**
+   - Remove special characters
+   - Standardize class names
+   - Verify email formats
+   - Check for duplicates
+
+3. **Import in order**
+   - Teachers first
+   - Then students
+   - Then subjects/classes
+   - Then assign teachers to subjects
+   - Finally schedules
+
+4. **Test with small sample**
+   - Import 5-10 records first
+   - Verify everything works
+   - Then import full dataset
+
+5. **Keep backups**
+   - Save original CSV files
+   - Backup database before bulk import
+   - Document import dates and sources
+
+---
+
+**Need more test data?**  
+You can generate additional entries by copying and modifying the patterns above.
+
+**Questions?**  
+Refer to ADMIN_GUIDE.md for detailed instructions.

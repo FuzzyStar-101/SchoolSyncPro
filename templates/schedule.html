@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Today's Schedule{% endblock %}
+
+{% block content %}
+<h1 class="section-title" id="scheduleTitle">Today's Schedule</h1>
+
+<div id="scheduleContainer">
+    <div class="spinner"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const periodTimes = [
+        '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+        '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'
+    ];
+
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+    async function loadScheduleView() {
+        try {
+            const userClass = '{{ user.class }}';
+            const response = await fetch(`/api/schedule?class=${userClass}`);
+            const schedule = await response.json();
+
+            // Get current day
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const today = days[new Date().getDay()];
+
+            document.getElementById('scheduleTitle').textContent = `Today's Schedule - ${today}`;
+
+            const todaySchedule = schedule[today] || [];
+
+            let html = '<div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">';
+
+            todaySchedule.forEach((subject, index) => {
+                const color = colors[index % colors.length];
+                html += `
+                    <div class="card" style="border-left: 4px solid ${color};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <h3 style="font-size: 18px; color: #1e293b; margin-bottom: 5px;">
+                                    Period ${index + 1}
+                                </h3>
+                                <p style="color: #64748b; font-size: 14px;">${periodTimes[index]}</p>
+                            </div>
+                            <span class="badge" style="background: ${color}20; color: ${color};">
+                                ${subject || 'Free Period'}
+                            </span>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 600; color: ${color}; margin-top: 15px;">
+                            ${subject || '-'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+
+            if (todaySchedule.length === 0 || todaySchedule.every(s => !s)) {
+                html = `
+                    <div class="card text-center" style="padding: 60px;">
+                        <i class="fas fa-calendar-times" style="font-size: 64px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h3 style="color: #64748b;">No schedule available for today</h3>
+                        <p style="color: #94a3b8; margin-top: 10px;">Check back later or contact your admin.</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('scheduleContainer').innerHTML = html;
+        } catch (error) {
+            document.getElementById('scheduleContainer').innerHTML = `
+                <div class="card text-center">
+                    <p style="color: #ef4444;">Failed to load schedule</p>
+                </div>
+            `;
+        }
+    }
+
+    loadScheduleView();
+</script>
+{% endblock %}

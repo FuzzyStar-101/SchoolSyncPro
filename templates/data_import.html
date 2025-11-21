@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Import Data{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Import Data</h1>
+
+<div class="grid grid-2">
+    <!-- Upload Section -->
+    <div class="card">
+        <h3 style="margin-bottom: 20px;"><i class="fas fa-cloud-upload-alt"></i> Upload File</h3>
+        
+        <div id="dropZone" 
+             style="border: 3px dashed #cbd5e1; border-radius: 15px; padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.3s;"
+             ondragover="handleDragOver(event)"
+             ondragleave="handleDragLeave(event)"
+             ondrop="handleDrop(event)"
+             onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 64px; color: #94a3b8; margin-bottom: 20px;"></i>
+            <h3 style="color: #64748b; margin-bottom: 10px;">Drag & Drop or Click to Upload</h3>
+            <p style="color: #94a3b8; font-size: 14px;">Supported: CSV, Excel (XLSX), JSON</p>
+        </div>
+
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.json" style="display: none;" onchange="handleFileSelect(event)">
+
+        <div class="form-group mt-20">
+            <label>Data Type</label>
+            <select id="dataType">
+                <option value="auto">Auto-detect</option>
+                <option value="students">Students</option>
+                <option value="teachers">Teachers</option>
+                <option value="schedule">Schedule</option>
+                <option value="homework">Homework</option>
+                <option value="grades">Grades</option>
+            </select>
+        </div>
+
+        <!-- Feedback Chat -->
+        <div id="feedbackChat" class="mt-20" style="display: none;">
+            <h4 style="margin-bottom: 15px;"><i class="fas fa-robot"></i> Upload Assistant</h4>
+            <div id="feedbackMessages" style="max-height: 300px; overflow-y: auto; background: #f8fafc; padding: 15px; border-radius: 10px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="card">
+        <h3 style="margin-bottom: 20px;"><i class="fas fa-info-circle"></i> Required Columns for Each Data Type</h3>
+        
+        <div style="display: grid; gap: 15px;">
+            <div style="padding: 15px; background: #f8fafc; border-radius: 10px; border-left: 4px solid #3b82f6;">
+                <h4 style="color: #3b82f6; margin-bottom: 10px;">Students</h4>
+                <p style="font-size: 14px; color: #64748b;">
+                    <strong>Required:</strong> name*<br>
+                    <strong>Optional:</strong> class, username, password, email, phone
+                </p>
+            </div>
+
+            <div style="padding: 15px; background: #f8fafc; border-radius: 10px; border-left: 4px solid #10b981;">
+                <h4 style="color: #10b981; margin-bottom: 10px;">Teachers</h4>
+                <p style="font-size: 14px; color: #64748b;">
+                    <strong>Required:</strong> name*<br>
+                    <strong>Optional:</strong> subjects, classes, username, password
+                </p>
+            </div>
+
+            <div style="padding: 15px; background: #f8fafc; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                <h4 style="color: #f59e0b; margin-bottom: 10px;">Schedule</h4>
+                <p style="font-size: 14px; color: #64748b;">
+                    <strong>Required:</strong> class*, day*, period*, subject*
+                </p>
+            </div>
+
+            <div style="padding: 15px; background: #f8fafc; border-radius: 10px; border-left: 4px solid #ef4444;">
+                <h4 style="color: #ef4444; margin-bottom: 10px;">Homework</h4>
+                <p style="font-size: 14px; color: #64748b;">
+                    <strong>Required:</strong> subject*, title*, class*, due_date*<br>
+                    <strong>Optional:</strong> description, date_given
+                </p>
+            </div>
+
+            <div style="padding: 15px; background: #f8fafc; border-radius: 10px; border-left: 4px solid #8b5cf6;">
+                <h4 style="color: #8b5cf6; margin-bottom: 10px;">Grades</h4>
+                <p style="font-size: 14px; color: #64748b;">
+                    <strong>Required:</strong> student_id*, subject*, test_type*, score*<br>
+                    <strong>Optional:</strong> max_score
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-20" style="padding: 15px; background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b;">
+            <h4 style="color: #92400e; margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> Tips</h4>
+            <ul style="font-size: 14px; color: #92400e; margin-left: 20px;">
+                <li>Column names are case-insensitive</li>
+                <li>Spaces and underscores are treated the same</li>
+                <li>Default passwords: student123, teacher123</li>
+                <li>Auto-generated usernames from names</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    #dropZone.drag-over {
+        background: #f0f9ff;
+        border-color: #3b82f6;
+    }
+
+    .feedback-message {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: start;
+        gap: 10px;
+    }
+
+    .feedback-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .feedback-error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .feedback-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function handleDragOver(event) {
+        event.preventDefault();
+        document.getElementById('dropZone').classList.add('drag-over');
+    }
+
+    function handleDragLeave(event) {
+        event.preventDefault();
+        document.getElementById('dropZone').classList.remove('drag-over');
+    }
+
+    function handleDrop(event) {
+        event.preventDefault();
+        document.getElementById('dropZone').classList.remove('drag-over');
+        
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    }
+
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    }
+
+    async function processFile(file) {
+        // Validate file type
+        const validExtensions = ['.csv', '.xlsx', '.xls', '.json'];
+        const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        
+        if (!validExtensions.includes(fileExt)) {
+            alert('Invalid file type. Please upload CSV, Excel, or JSON files.');
+            return;
+        }
+
+        // Show feedback chat
+        document.getElementById('feedbackChat').style.display = 'block';
+        addFeedbackMessage('info', `Processing file: ${file.name}...`);
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('data_type', document.getElementById('dataType').value);
+
+        try {
+            const response = await fetch('/api/admin/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                addFeedbackMessage('success', `✓ Successfully imported ${result.records_imported} records!`);
+                
+                if (result.errors && result.errors.length > 0) {
+                    addFeedbackMessage('error', `⚠ Some errors occurred:`);
+                    result.errors.forEach(error => {
+                        addFeedbackMessage('error', error);
+                    });
+                }
+            } else {
+                addFeedbackMessage('error', `✗ Upload failed: ${result.error}`);
+            }
+        } catch (error) {
+            addFeedbackMessage('error', `✗ Error: ${error.message}`);
+        }
+
+        // Reset file input
+        document.getElementById('fileInput').value = '';
+    }
+
+    function addFeedbackMessage(type, message) {
+        const messagesDiv = document.getElementById('feedbackMessages');
+        
+        const iconMap = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            info: 'fa-info-circle'
+        };
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `feedback-message feedback-${type}`;
+        messageDiv.innerHTML = `
+            <i class="fas ${iconMap[type]}"></i>
+            <div>${message}</div>
+        `;
+
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+</script>
+{% endblock %}

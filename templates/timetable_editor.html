@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+
+{% block title %}Timetable Editor{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Timetable Editor</h1>
+
+<!-- Top Section: Management -->
+<div class="grid grid-3 mb-20">
+    <!-- Subject Management -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-book"></i> Subjects</h3>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="newSubject" placeholder="Subject name" style="flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <button onclick="addSubject()" class="btn btn-success" style="padding: 8px 16px;">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <div id="subjectsList" style="max-height: 200px; overflow-y: auto;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Class Management -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-users"></i> Classes</h3>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="newClass" placeholder="Class name" style="flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <button onclick="addClass()" class="btn btn-success" style="padding: 8px 16px;">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <div id="classesList" style="max-height: 200px; overflow-y: auto;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Teacher Assignment -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-user-tie"></i> Assign Teachers</h3>
+        <div class="form-group">
+            <select id="teacherSelect" style="width: 100%; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <option value="">Select Teacher</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select id="subjectSelect" style="width: 100%; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <option value="">Select Subject</option>
+            </select>
+        </div>
+        <button onclick="assignTeacherToSubject()" class="btn btn-success" style="width: 100%; margin-bottom: 10px;">
+            <i class="fas fa-link"></i> Assign
+        </button>
+        <button onclick="viewTeacherAssignments()" class="btn btn-secondary" style="width: 100%;">
+            <i class="fas fa-eye"></i> View All Assignments
+        </button>
+    </div>
+</div>
+
+<!-- Middle Section: Drag & Drop + Actions -->
+<div class="grid grid-3 mb-20">
+    <!-- Draggable Subjects -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-hand-pointer"></i> Drag Subjects</h3>
+        <div id="draggableSubjects" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Class Selector -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-filter"></i> Select Class</h3>
+        <select id="classSelector" onchange="loadScheduleForClass()" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px;">
+            <option value="">-- Select Class --</option>
+        </select>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-cogs"></i> Actions</h3>
+        <button onclick="saveSchedule()" class="btn btn-success" style="width: 100%; margin-bottom: 10px;">
+            <i class="fas fa-save"></i> Save Schedule
+        </button>
+        <button onclick="clearSchedule()" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
+            <i class="fas fa-eraser"></i> Clear Schedule
+        </button>
+        <button onclick="exportPDF()" class="btn btn-primary" style="width: 100%;">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+    </div>
+</div>
+
+<!-- Timetable Grid -->
+<div class="card">
+    <div style="overflow-x: auto;">
+        <table id="timetableGrid" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8fafc;">
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Period</th>
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Monday</th>
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Tuesday</th>
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Wednesday</th>
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Thursday</th>
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Friday</th>
+                    <th style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600;">Saturday</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 8 periods -->
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">1</td>
+                    <td class="drop-cell" data-day="Monday" data-period="1" ondrop="dropWithConflictCheck(event, 'Monday', 1)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 1)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer; transition: background 0.2s;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="1" ondrop="dropWithConflictCheck(event, 'Tuesday', 1)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 1)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer; transition: background 0.2s;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="1" ondrop="dropWithConflictCheck(event, 'Wednesday', 1)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 1)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer; transition: background 0.2s;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="1" ondrop="dropWithConflictCheck(event, 'Thursday', 1)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 1)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer; transition: background 0.2s;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="1" ondrop="dropWithConflictCheck(event, 'Friday', 1)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 1)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer; transition: background 0.2s;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="1" ondrop="dropWithConflictCheck(event, 'Saturday', 1)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 1)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer; transition: background 0.2s;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">2</td>
+                    <td class="drop-cell" data-day="Monday" data-period="2" ondrop="dropWithConflictCheck(event, 'Monday', 2)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 2)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="2" ondrop="dropWithConflictCheck(event, 'Tuesday', 2)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 2)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="2" ondrop="dropWithConflictCheck(event, 'Wednesday', 2)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 2)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="2" ondrop="dropWithConflictCheck(event, 'Thursday', 2)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 2)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="2" ondrop="dropWithConflictCheck(event, 'Friday', 2)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 2)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="2" ondrop="dropWithConflictCheck(event, 'Saturday', 2)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 2)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">3</td>
+                    <td class="drop-cell" data-day="Monday" data-period="3" ondrop="dropWithConflictCheck(event, 'Monday', 3)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 3)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="3" ondrop="dropWithConflictCheck(event, 'Tuesday', 3)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 3)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="3" ondrop="dropWithConflictCheck(event, 'Wednesday', 3)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 3)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="3" ondrop="dropWithConflictCheck(event, 'Thursday', 3)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 3)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="3" ondrop="dropWithConflictCheck(event, 'Friday', 3)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 3)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="3" ondrop="dropWithConflictCheck(event, 'Saturday', 3)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 3)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">4</td>
+                    <td class="drop-cell" data-day="Monday" data-period="4" ondrop="dropWithConflictCheck(event, 'Monday', 4)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 4)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="4" ondrop="dropWithConflictCheck(event, 'Tuesday', 4)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 4)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="4" ondrop="dropWithConflictCheck(event, 'Wednesday', 4)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 4)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="4" ondrop="dropWithConflictCheck(event, 'Thursday', 4)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 4)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="4" ondrop="dropWithConflictCheck(event, 'Friday', 4)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 4)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="4" ondrop="dropWithConflictCheck(event, 'Saturday', 4)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 4)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">5</td>
+                    <td class="drop-cell" data-day="Monday" data-period="5" ondrop="dropWithConflictCheck(event, 'Monday', 5)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 5)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="5" ondrop="dropWithConflictCheck(event, 'Tuesday', 5)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 5)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="5" ondrop="dropWithConflictCheck(event, 'Wednesday', 5)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 5)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="5" ondrop="dropWithConflictCheck(event, 'Thursday', 5)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 5)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="5" ondrop="dropWithConflictCheck(event, 'Friday', 5)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 5)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="5" ondrop="dropWithConflictCheck(event, 'Saturday', 5)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 5)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">6</td>
+                    <td class="drop-cell" data-day="Monday" data-period="6" ondrop="dropWithConflictCheck(event, 'Monday', 6)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 6)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="6" ondrop="dropWithConflictCheck(event, 'Tuesday', 6)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 6)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="6" ondrop="dropWithConflictCheck(event, 'Wednesday', 6)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 6)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="6" ondrop="dropWithConflictCheck(event, 'Thursday', 6)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 6)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="6" ondrop="dropWithConflictCheck(event, 'Friday', 6)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 6)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="6" ondrop="dropWithConflictCheck(event, 'Saturday', 6)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 6)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">7</td>
+                    <td class="drop-cell" data-day="Monday" data-period="7" ondrop="dropWithConflictCheck(event, 'Monday', 7)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 7)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="7" ondrop="dropWithConflictCheck(event, 'Tuesday', 7)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 7)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="7" ondrop="dropWithConflictCheck(event, 'Wednesday', 7)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 7)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="7" ondrop="dropWithConflictCheck(event, 'Thursday', 7)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 7)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="7" ondrop="dropWithConflictCheck(event, 'Friday', 7)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 7)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="7" ondrop="dropWithConflictCheck(event, 'Saturday', 7)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 7)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px; border: 2px solid #e2e8f0; font-weight: 600; background: #f8fafc;">8</td>
+                    <td class="drop-cell" data-day="Monday" data-period="8" ondrop="dropWithConflictCheck(event, 'Monday', 8)" ondragover="allowDrop(event)" ondblclick="clearCell('Monday', 8)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Tuesday" data-period="8" ondrop="dropWithConflictCheck(event, 'Tuesday', 8)" ondragover="allowDrop(event)" ondblclick="clearCell('Tuesday', 8)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Wednesday" data-period="8" ondrop="dropWithConflictCheck(event, 'Wednesday', 8)" ondragover="allowDrop(event)" ondblclick="clearCell('Wednesday', 8)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Thursday" data-period="8" ondrop="dropWithConflictCheck(event, 'Thursday', 8)" ondragover="allowDrop(event)" ondblclick="clearCell('Thursday', 8)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Friday" data-period="8" ondrop="dropWithConflictCheck(event, 'Friday', 8)" ondragover="allowDrop(event)" ondblclick="clearCell('Friday', 8)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                    <td class="drop-cell" data-day="Saturday" data-period="8" ondrop="dropWithConflictCheck(event, 'Saturday', 8)" ondragover="allowDrop(event)" ondblclick="clearCell('Saturday', 8)" style="padding: 15px; border: 2px solid #e2e8f0; min-width: 100px; height: 60px; cursor: pointer;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p style="text-align: center; color: #64748b; margin-top: 15px; font-size: 14px;">
+        <i class="fas fa-info-circle"></i> Drag subjects to time slots. Double-click a cell to clear it.
+    </p>
+</div>
+
+<style>
+    .subject-pill {
+        padding: 12px;
+        background: #3b82f6;
+        color: white;
+        border-radius: 8px;
+        text-align: center;
+        cursor: move;
+        transition: all 0.2s;
+        font-weight: 600;
+    }
+
+    .subject-pill:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .drop-cell:hover {
+        background: #f0f9ff !important;
+    }
+
+    .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let draggedSubject = null;
+
+    async function loadScheduleGeneratorView() {
+        try {
+            const [subjects, classes, teachers, schedule] = await Promise.all([
+                fetch('/api/admin/subjects').then(r => r.json()),
+                fetch('/api/admin/classes-list').then(r => r.json()),
+                fetch('/api/admin/teachers-list').then(r => r.json())
+            ]);
+
+            // Render subjects list
+            let subjectsHTML = '';
+            subjects.forEach(subj => {
+                subjectsHTML += `
+                    <div class="list-item">
+                        <span>${subj.name}</span>
+                        <button onclick="deleteSubject('${subj.name}')" class="btn btn-danger" style="padding: 4px 8px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            document.getElementById('subjectsList').innerHTML = subjectsHTML || '<p style="color: #94a3b8; text-align: center;">No subjects yet</p>';
+
+            // Render classes list
+            let classesHTML = '';
+            classes.forEach(cls => {
+                classesHTML += `
+                    <div class="list-item">
+                        <span>${cls.name}</span>
+                        <button onclick="deleteClass('${cls.name}')" class="btn btn-danger" style="padding: 4px 8px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            document.getElementById('classesList').innerHTML = classesHTML || '<p style="color: #94a3b8; text-align: center;">No classes yet</p>';
+
+            // Populate teacher and subject dropdowns
+            let teacherOptions = '<option value="">Select Teacher</option>';
+            teachers.forEach(t => {
+                teacherOptions += `<option value="${t.user_id}">${t.name}</option>`;
+            });
+            document.getElementById('teacherSelect').innerHTML = teacherOptions;
+
+            let subjectOptions = '<option value="">Select Subject</option>';
+            subjects.forEach(s => {
+                subjectOptions += `<option value="${s.name}">${s.name}</option>`;
+            });
+            document.getElementById('subjectSelect').innerHTML = subjectOptions;
+
+            // Populate class selector
+            let classOptions = '<option value="">-- Select Class --</option>';
+            classes.forEach(c => {
+                classOptions += `<option value="${c.name}">${c.name}</option>`;
+            });
+            document.getElementById('classSelector').innerHTML = classOptions;
+
+            // Render draggable subjects
+            let draggableHTML = '';
+            subjects.forEach(subj => {
+                draggableHTML += `
+                    <div class="subject-pill" draggable="true" ondragstart="dragStart(event, '${subj.name}')">
+                        ${subj.name}
+                    </div>
+                `;
+            });
+            document.getElementById('draggableSubjects').innerHTML = draggableHTML || '<p style="color: #94a3b8; grid-column: span 2; text-align: center;">No subjects yet</p>';
+
+        } catch (error) {
+            console.error('Failed to load data');
+        }
+    }
+
+    async function addSubject() {
+        const name = document.getElementById('newSubject').value.trim();
+        if (!name) return;
+
+        try {
+            const response = await fetch('/api/admin/subjects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, code: '' })
+            });
+
+            if (response.ok) {
+                document.getElementById('newSubject').value = '';
+                loadScheduleGeneratorView();
+            } else {
+                alert('Failed to add subject');
+            }
+        } catch (error) {
+            alert('Error adding subject');
+        }
+    }
+
+    async function deleteSubject(name) {
+        if (!confirm(`Delete subject "${name}"?`)) return;
+
+        try {
+            const response = await fetch(`/api/admin/subjects?name=${encodeURIComponent(name)}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                loadScheduleGeneratorView();
+            }
+        } catch (error) {
+            alert('Error deleting subject');
+        }
+    }
+
+    async function addClass() {
+        const name = document.getElementById('newClass').value.trim();
+        if (!name) return;
+
+        try {
+            const response = await fetch('/api/admin/classes-list', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, section: '' })
+            });
+
+            if (response.ok) {
+                document.getElementById('newClass').value = '';
+                loadScheduleGeneratorView();
+            } else {
+                alert('Failed to add class');
+            }
+        } catch (error) {
+            alert('Error adding class');
+        }
+    }
+
+    async function deleteClass(name) {
+        if (!confirm(`Delete class "${name}"?`)) return;
+
+        try {
+            const response = await fetch(`/api/admin/classes-list?name=${encodeURIComponent(name)}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                loadScheduleGeneratorView();
+            }
+        } catch (error) {
+            alert('Error deleting class');
+        }
+    }
+
+    async function assignTeacherToSubject() {
+        const teacherId = document.getElementById('teacherSelect').value;
+        const subject = document.getElementById('subjectSelect').value;
+
+        if (!teacherId || !subject) {
+            alert('Please select both teacher and subject');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/teacher-subjects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teacher_id: teacherId, subject })
+            });
+
+            if (response.ok) {
+                alert('Teacher assigned successfully!');
+                document.getElementById('teacherSelect').value = '';
+                document.getElementById('subjectSelect').value = '';
+            }
+        } catch (error) {
+            alert('Error assigning teacher');
+        }
+    }
+
+    async function viewTeacherAssignments() {
+        try {
+            const response = await fetch('/api/admin/teacher-subjects');
+            const assignments = await response.json();
+
+            let html = '<h3 style="margin-bottom: 20px;">Teacher-Subject Assignments</h3>';
+            html += '<table><thead><tr><th>Teacher</th><th>Subject</th><th>Actions</th></tr></thead><tbody>';
+
+            assignments.forEach(assign => {
+                html += `
+                    <tr>
+                        <td>${assign.teacher_name}</td>
+                        <td><span class="badge badge-primary">${assign.subject}</span></td>
+                        <td>
+                            <button onclick="deleteAssignment(${assign.id})" class="btn btn-danger" style="padding: 8px 12px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+
+            if (assignments.length === 0) {
+                html = '<div class="text-center" style="padding: 40px;"><h3 style="color: #64748b;">No assignments yet</h3></div>';
+            }
+
+            // Show in modal or replace content
+            const contentArea = document.querySelector('.content-area');
+            contentArea.innerHTML = html + '<button onclick="location.reload()" class="btn btn-secondary mt-20"><i class="fas fa-arrow-left"></i> Back</button>';
+        } catch (error) {
+            alert('Error loading assignments');
+        }
+    }
+
+    async function deleteAssignment(id) {
+        if (!confirm('Delete this assignment?')) return;
+
+        try {
+            const response = await fetch(`/api/admin/teacher-subjects?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                viewTeacherAssignments();
+            }
+        } catch (error) {
+            alert('Error deleting assignment');
+        }
+    }
+
+    function dragStart(event, subject) {
+        draggedSubject = subject;
+        event.dataTransfer.effectAllowed = 'move';
+    }
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    async function dropWithConflictCheck(event, day, period) {
+        event.preventDefault();
+
+        if (!draggedSubject) return;
+
+        const className = document.getElementById('classSelector').value;
+        if (!className) {
+            alert('Please select a class first!');
+            return;
+        }
+
+        try {
+            // Check for conflicts
+            const response = await fetch('/api/admin/check-conflicts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    class: className,
+                    day: day,
+                    period: period,
+                    subject: draggedSubject
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.conflict) {
+                const detail = result.details[0];
+                let message = `⚠️ CONFLICT DETECTED!\n\n`;
+                message += `Teacher: ${detail.teacher}\n`;
+                message += `Already teaching: ${detail.conflicting_class}\n`;
+                message += `at ${day}, Period ${period}\n\n`;
+
+                if (result.alternatives && result.alternatives.length > 0) {
+                    message += `Suggested alternative periods:\n`;
+                    result.alternatives.forEach(alt => {
+                        message += `- Period ${alt}\n`;
+                    });
+                }
+
+                message += `\nDo you want to proceed anyway?`;
+
+                if (!confirm(message)) {
+                    return;
+                }
+            }
+
+            // Place subject in cell
+            const cell = event.target;
+            cell.textContent = draggedSubject;
+            cell.style.background = '#dbeafe';
+            cell.style.fontWeight = '600';
+
+        } catch (error) {
+            alert('Error checking conflicts');
+        }
+    }
+
+    function clearCell(day, period) {
+        const cells = document.querySelectorAll('.drop-cell');
+        cells.forEach(cell => {
+            if (cell.dataset.day === day && cell.dataset.period == period) {
+                cell.textContent = '';
+                cell.style.background = '';
+                cell.style.fontWeight = '';
+            }
+        });
+    }
+
+    function clearSchedule() {
+        if (!confirm('Clear entire schedule?')) return;
+
+        document.querySelectorAll('.drop-cell').forEach(cell => {
+            cell.textContent = '';
+            cell.style.background = '';
+            cell.style.fontWeight = '';
+        });
+    }
+
+    async function saveSchedule() {
+        const className = document.getElementById('classSelector').value;
+        if (!className) {
+            alert('Please select a class!');
+            return;
+        }
+
+        const schedule = {
+            Monday: [], Tuesday: [], Wednesday: [], 
+            Thursday: [], Friday: [], Saturday: []
+        };
+
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        
+        days.forEach(day => {
+            for (let period = 1; period <= 8; period++) {
+                const cell = document.querySelector(`.drop-cell[data-day="${day}"][data-period="${period}"]`);
+                schedule[day].push(cell.textContent.trim() || '');
+            }
+        });
+
+        try {
+            const response = await fetch('/api/admin/schedule', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ class: className, schedule })
+            });
+
+            if (response.ok) {
+                alert('Schedule saved successfully!');
+            } else {
+                alert('Failed to save schedule');
+            }
+        } catch (error) {
+            alert('Error saving schedule');
+        }
+    }
+
+    async function loadScheduleForClass() {
+        const className = document.getElementById('classSelector').value;
+        if (!className) return;
+
+        try {
+            const response = await fetch(`/api/admin/schedule?class=${encodeURIComponent(className)}`);
+            const schedule = await response.json();
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+            days.forEach(day => {
+                const daySchedule = schedule[day] || [];
+                daySchedule.forEach((subject, index) => {
+                    const period = index + 1;
+                    const cell = document.querySelector(`.drop-cell[data-day="${day}"][data-period="${period}"]`);
+                    if (cell) {
+                        cell.textContent = subject || '';
+                        if (subject) {
+                            cell.style.background = '#dbeafe';
+                            cell.style.fontWeight = '600';
+                        } else {
+                            cell.style.background = '';
+                            cell.style.fontWeight = '';
+                        }
+                    }
+                });
+            });
+        } catch (error) {
+            alert('Error loading schedule');
+        }
+    }
+
+    function exportPDF() {
+        alert('PDF export feature - Integration with a PDF library would be needed in production');
+    }
+
+    loadScheduleGeneratorView();
+</script>
+{% endblock %}
